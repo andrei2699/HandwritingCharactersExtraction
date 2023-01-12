@@ -142,8 +142,8 @@ def extract_characters(line_image, line_folder, should_split_too_big=False, use_
     create_folder(line_folder)
 
     copy_image = line_image.copy()
-    copy_image = convert_to_gray(line_image)
-    copy_image = fill_black(copy_image, 255)
+    copy_image = convert_to_gray(copy_image)
+    # copy_image = fill_black(copy_image, 255)
 
     _, threshold = cv2.threshold(copy_image, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
 
