@@ -204,8 +204,9 @@ def extract_lines(image, folder, should_split_too_big=False, use_mean=True, spli
 
         center = (x + w // 2, y + h // 2)
         rotation_angle = -90 + angle
-        rotation_matrix = cv2.getRotationMatrix2D(center, rotation_angle, 1.0)
-        rotated = cv2.warpAffine(crop, rotation_matrix, (crop.shape[1], crop.shape[0]))
+        # rotation_matrix = cv2.getRotationMatrix2D(center, rotation_angle, 1.0)
+        # rotated = cv2.warpAffine(crop, rotation_matrix, (crop.shape[1], crop.shape[0]))
+        rotated = crop
 
         display_image("line" + str(line_count), rotated, (w, h))
 
