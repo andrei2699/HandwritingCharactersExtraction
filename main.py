@@ -147,11 +147,11 @@ def extract_characters(line_image, line_folder, should_split_too_big=False, use_
 
     _, threshold = cv2.threshold(copy_image, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
 
-    opening_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 2))
-    opening = cv2.morphologyEx(threshold, cv2.MORPH_OPEN, opening_kernel, iterations=1)
-    # display_image("opening", opening, (copy_image.shape[1], copy_image.shape[0]))
+    closing_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 2))
+    closing = cv2.morphologyEx(threshold, cv2.MORPH_CLOSE, closing_kernel, iterations=1)
+    # display_image("closing", closing, (copy_image.shape[1], copy_image.shape[0]))
 
-    contours, _ = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     extracted_characters_dict = {}
 
