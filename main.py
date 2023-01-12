@@ -100,8 +100,8 @@ def display_bounding_box_characters_in_line(line_image, characters_dict):
     display_image("line", line_image, (line_image.shape[1], line_image.shape[0]))
 
 
-def split_too_big_characters(extracted_characters_dict, use_mean=None):
-    if use_mean is None:
+def split_too_big_characters(extracted_characters_dict, use_mean=True, split_percent=1.5):
+    if use_mean is True:
         average_character_width = count_mean_character_height(extracted_characters_dict)
     else:
         average_character_width = count_average_character_width(extracted_characters_dict)
@@ -117,9 +117,9 @@ def split_too_big_characters(extracted_characters_dict, use_mean=None):
 
         percent = average_character_width / img.shape[1]
 
-        print(x, w, img.shape[1], average_character_width, percent)
+        # print(x, w, percent, split_percent)
 
-        if percent > 1.5:
+        if percent > split_percent:
             split_point = int(img.shape[1] / 2)
 
             new_extracted_characters_dict[x] = {
@@ -133,13 +133,17 @@ def split_too_big_characters(extracted_characters_dict, use_mean=None):
         else:
             new_extracted_characters_dict[x] = character
 
+    # print()
+
     return new_extracted_characters_dict
 
 
-def extract_characters(line_image, line_folder):
+def extract_characters(line_image, line_folder, should_split_too_big=False, use_mean=True, split_percent=1.5):
     create_folder(line_folder)
 
     copy_image = line_image.copy()
+    copy_image = convert_to_gray(line_image)
+    copy_image = fill_black(copy_image, 255)
 
     _, threshold = cv2.threshold(copy_image, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
 
@@ -169,8 +173,8 @@ def extract_characters(line_image, line_folder):
 
         character_count += 1
 
-    # uncomment if splitting too big characters is wanted
-    # extracted_characters_dict = split_too_big_characters(extracted_characters_dict)
+    if should_split_too_big:
+        extracted_characters_dict = split_too_big_characters(extracted_characters_dict, use_mean, split_percent)
 
     # display_bounding_box_characters_in_line(copy_image, extracted_characters_dict)
 
@@ -182,7 +186,7 @@ def extract_characters(line_image, line_folder):
         character_count += 1
 
 
-def extract_lines(image, folder):
+def extract_lines(image, folder, should_split_too_big=False, use_mean=True, split_percent=1.5):
     line_contours = extract_line_contours(image)
 
     channel = 0
@@ -208,10 +212,7 @@ def extract_lines(image, folder):
         line_path = folder + '/line' + str(line_count)
         save_image(line_path + '.jpg', rotated)
 
-        rotated = convert_to_gray(rotated)
-        rotated = fill_black(rotated, 255)
-
-        extract_characters(rotated, line_path)
+        extract_characters(rotated, line_path, should_split_too_big, use_mean, split_percent)
 
         line_count += 1
 
@@ -224,16 +225,24 @@ def delete_folder(path):
         shutil.rmtree(path)
 
 
-if __name__ == '__main__':
-    # image = read_image('data/0002_3.jpg')
-    image = read_image('data/0001_3.jpg')
+def main():
+    image = read_image('data/0002_3.jpg')
+    # image = read_image('data/0001_3.jpg')
     lines_output_folder = 'output'
 
     delete_folder(lines_output_folder)
 
-    extract_lines(image, lines_output_folder)
+    should_split_too_big = True
+    use_mean = False
+    split_percent = 1.5
+
+    extract_lines(image, lines_output_folder, should_split_too_big, use_mean, split_percent)
 
     # display_image("bounding box", image)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+
+if __name__ == '__main__':
+    main()
